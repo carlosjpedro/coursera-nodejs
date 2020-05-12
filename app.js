@@ -14,7 +14,8 @@ const Dishes = require('./models/dishes')
 
 
 const url = 'mongodb://localhost:27017/conFusion'
-mongoose.connect
+const connect =mongoose.connect(url)
+connect
     .then(db => console.log('Connected to server'))
     .catch((err) => console.log(err))
 
@@ -49,7 +50,7 @@ app.use(function (err, req, res, next) {
     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
     // render the error page
-    res.status(err.status || 500);
+    res.status = (err.status || 500);
     res.render('error');
 });
 
