@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser')
 const User = require('../models/user')
+const passport = require('passport')
 const router = express.Router();
 
 
@@ -11,46 +12,40 @@ router.get('/', function (req, res, next) {
 })
 
 router.post('/signup', (req, res, next) => {
-    User.findOne({ username: req.body.username })
-        .then(user => {
-            if (user != null) {
-                var err = new Error('User ' + req.body.username + ' already exists.')
-                err.status = 403
-                next(err)
-                return
-            }
-            return User.create(req.body).then(user => {
-                res.statusCode = 200
+    User.register(new User({ username: req.body.username },
+        req.body.passport,
+        (err, user) => {
+            if (err) {
+                res.statusCode = 500
                 res.setHeader('Content-Type', 'application/json')
-                res.json({ status: 'Registration Successful!', user: user })
-            }, err => next(err))
-        })
-        .catch(next)
+                res.json({ err: err })
+
+            } else {
+                passport.authenticate('local')(req, res, () => {
+                    res.statusCode = 200
+                    res.setHeader('Content-Type', 'application/json')
+                    res.json({ success: true, status: 'Registration Successful!' })
+                })
+            }
+        }
+    ))
 })
 
-rouster.post('/login', (req, res, next) => {
-    if (!req.session.user) {
-        let authHeader = req.headers.authorization
-        if (authHeader != null) {
-            let [user, pass] = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':')
+router.post('/login', passport.authenticate('local'), (req, res) => {
+    res.statusCode = 200
+    res.setHeader('Content-Type', 'application/json')
+    res.json({ success: true, status: 'Login Successful!' })
+})
 
-            if (user === 'user' && pass === 'password') {
-                req.session.user = 'admin'
-                next()
-                return
-            }
-
-        }
-        let err = new Error('You are not authenticated!');
-        res.setHeader('WWW-Authenticate', 'Basic');
-        err.status = 401;
-        next(err);
-    } else if (req.session.user === 'admin') {
-        next()
+router.get('/logout', (req, res, next) => {
+    if (req.session) {
+        req.session.destroy()
+        res.clearCookie('session-id')
+        res.redirect('/')
     } else {
-        let err = new Error('You are not authenticated!');
-        err.status = 401;
-        next(err);
+        let err = new Error('You are not logged in!')
+        err.status = 403
+        next(err)
     }
 })
 
