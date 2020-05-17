@@ -16,7 +16,7 @@ const passport = require('passport')
 const authenticate = require('./authenticate')
 const config = require('./config')
 const url = config.mongoUrl
-const connect = mongoose.connect(url)
+const connect = mongoose.connect(url, { useMongoClient: true })
 
 connect
     .then(db => console.log('Connected to server'))

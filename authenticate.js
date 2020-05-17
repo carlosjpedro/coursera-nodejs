@@ -35,3 +35,8 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts, (jwt_payload, done) => 
 
 
 exports.verifyUser = passport.authenticate('jwt', { session: false })
+exports.verifyAdmin = passport.use((req, res) => {
+
+
+    console.log('Fuck!!|')
+})

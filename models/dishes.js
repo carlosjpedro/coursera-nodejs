@@ -22,7 +22,9 @@ const commentSchema = new mongoose.Schema(
         }
     },
     {
-        timestamps: true
+        timestamps: true,
+        usePushEach: true
+
     })
 
 const dishSchema = new mongoose.Schema(
@@ -61,7 +63,8 @@ const dishSchema = new mongoose.Schema(
         comments: [commentSchema]
     },
     {
-        timestamps: true
+        timestamps: true,
+        usePushEach: true
     })
 
 var Dishes = mongoose.model('Dish', dishSchema)

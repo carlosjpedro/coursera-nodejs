@@ -29,7 +29,11 @@ const leadersSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
-})
+},
+    {
+        usePushEach: true
+    }
+)
 
 
 

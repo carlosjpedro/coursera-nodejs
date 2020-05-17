@@ -30,6 +30,9 @@ const promosSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
+},
+{
+    usePushEach: true
 })
 
 var Promotions = mongoose.model('Promotions', promosSchema)
