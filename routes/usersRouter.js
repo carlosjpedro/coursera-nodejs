@@ -2,18 +2,16 @@ const express = require('express');
 const bodyParser = require('body-parser')
 const User = require('../models/user')
 const passport = require('passport')
-const router = express.Router();
+const usersRouter = express.Router();
 
 
-router.use(bodyParser.json())
+usersRouter.use(bodyParser.json())
 /* GET users listing. */
-router.get('/', function (req, res, next) {
-    res.send('respond with a resource');
-})
+usersRouter.get('/', (req, res, next) => res.send('respond with a resource'))
 
-router.post('/signup', (req, res, next) => {
-    User.register(new User({ username: req.body.username },
-        req.body.passport,
+usersRouter.post('/signup', (req, res, next) => {
+    User.register(new User({ username: req.body.username }),
+        req.body.password,
         (err, user) => {
             if (err) {
                 res.statusCode = 500
@@ -28,16 +26,16 @@ router.post('/signup', (req, res, next) => {
                 })
             }
         }
-    ))
+    )
 })
 
-router.post('/login', passport.authenticate('local'), (req, res) => {
+usersRouter.post('/login', passport.authenticate('local'), (req, res) => {
     res.statusCode = 200
     res.setHeader('Content-Type', 'application/json')
     res.json({ success: true, status: 'Login Successful!' })
 })
 
-router.get('/logout', (req, res, next) => {
+usersRouter.get('/logout', (req, res, next) => {
     if (req.session) {
         req.session.destroy()
         res.clearCookie('session-id')
@@ -49,4 +47,4 @@ router.get('/logout', (req, res, next) => {
     }
 })
 
-module.exports = router;
+module.exports = usersRouter;

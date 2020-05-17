@@ -7,13 +7,13 @@ const mongoose = require('mongoose')
 const session = require('express-session')
 const fileStore = require('session-file-store')(session)
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var usersRouter = require('./routes/usersRouter');
 const dishRouter = require('./routes/dishRouter')
 const leaderRouter = require('./routes/leaderRouter')
 const promoRouter = require('./routes/promoRouter')
 const Dishes = require('./models/dishes')
 const passport = require('passport')
-const
+const authenticate = require('./authenticate')
 
 const url = 'mongodb://localhost:27017/conFusion'
 const connect = mongoose.connect(url)
@@ -39,7 +39,7 @@ app.use(session({
 }));
 
 app.use(passport.initialize())
-app.user(passport.session())
+app.use(passport.session())
 
 
 app.use('/', indexRouter);
@@ -74,7 +74,7 @@ app.use(function (req, res, next) {
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use((err, req, res, next) => {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
