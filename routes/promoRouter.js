@@ -2,7 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const Promotions = require('../models/promotions')
 const promoRouter = express.Router()
-
+const authenticate = require('../authenticate')
 promoRouter.use(bodyParser.json())
 promoRouter
     .route('/')
@@ -21,11 +21,11 @@ promoRouter
                 err => next(err))
             .catch(err => next(err))
     })
-    .post((req, res, next) => {
+    .post(authenticate.verifyUser, (req, res, next) => {
         Promotions.create(req.body)
             .then(promo => {
                 res.statusCode = 200
-                res.setHeader('Content-Type', 'text/json')                
+                res.setHeader('Content-Type', 'text/json')
                 console.log('Promotion Created', promo)
                 res.json(promo)
 
@@ -33,11 +33,11 @@ promoRouter
                 err => next(err))
             .catch(err => next(err))
     })
-    .put((req, res, next) => {
+    .put(authenticate.verifyUser, (req, res, next) => {
         res.statusCode = 403
         res.end('PUT operation not supported on /promos')
     })
-    .delete((req, res, next) => {
+    .delete(authenticate.verifyUser, (req, res, next) => {
         Promotions.remove({})
             .then(response => {
                 res.statusCode = 200
@@ -61,10 +61,10 @@ promoRouter
                 err => next(err))
             .catch(err => next(err))
     })
-    .post((req, res, next) => {
+    .post(authenticate.verifyUser, (req, res, next) => {
         res.end('POST operation not supported on /promos/' + req.params.promoId)
     })
-    .put((req, res, next) => {
+    .put(authenticate.verifyUser, (req, res, next) => {
         Promotions.findByIdAndUpdate(req.params.promoId,
             { $set: req.body }, { new: true })
             .then(promo => {
@@ -79,7 +79,7 @@ promoRouter
         res.end('Will update  ' + req.body.name +
             ' with details : ' + req.body.description)
     })
-    .delete((req, res, next) => {
+    .delete(authenticate.verifyUser, (req, res, next) => {
         Promotions.findByIdAndDelete(req.params.promoId)
             .then(response => {
                 res.statusCode = 200
@@ -90,4 +90,4 @@ promoRouter
             .catch(err => next(err))
     })
 
-    module.exports = promoRouter
+module.exports = promoRouter

@@ -14,9 +14,10 @@ const promoRouter = require('./routes/promoRouter')
 const Dishes = require('./models/dishes')
 const passport = require('passport')
 const authenticate = require('./authenticate')
-
-const url = 'mongodb://localhost:27017/conFusion'
+const config = require('./config')
+const url = config.mongoUrl
 const connect = mongoose.connect(url)
+
 connect
     .then(db => console.log('Connected to server'))
     .catch((err) => console.log(err))
@@ -31,36 +32,13 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(session({
-    name: 'session-id',
-    secret: '80022223-136d-4f3c-abb8-e8a9fcbc4587',
-    saveUninitialized: false,
-    store: new fileStore()
-}));
+
 
 app.use(passport.initialize())
-app.use(passport.session())
 
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
-const auth = (req, res, next) => {
-    if (!req.user) {
-        let err = new Error('You are not authenticated!');
-        res.setHeader('WWW-Authenticate', 'Basic');
-        err.status = 401;
-        next(err);
-    }
-    else {
-        next()
-    }
-}
-
-
-
-app.use(auth)
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 
