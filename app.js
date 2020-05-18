@@ -11,6 +11,7 @@ var usersRouter = require('./routes/usersRouter');
 const dishRouter = require('./routes/dishRouter')
 const leaderRouter = require('./routes/leaderRouter')
 const promoRouter = require('./routes/promoRouter')
+const uploadRouter = require('./routes/uploadRouter')
 const Dishes = require('./models/dishes')
 const passport = require('passport')
 const authenticate = require('./authenticate')
@@ -36,12 +37,12 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(passport.initialize())
 
-app.all('*', (req, res, next) =>{
+app.all('*', (req, res, next) => {
 
-    if(req.secure){
+    if (req.secure) {
         return next()
     }
-    
+
     res.redirect(307, 'https://' + req.hostname + ':' + app.get('secPort') + req.url)
 })
 app.use('/', indexRouter);
@@ -52,6 +53,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/dishes', dishRouter);
 app.use('/leaders', leaderRouter);
 app.use('/promos', promoRouter);
+app.use('/imageUpload', uploadRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
