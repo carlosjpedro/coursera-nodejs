@@ -4,10 +4,11 @@ const User = require('../models/user')
 const passport = require('passport')
 const usersRouter = express.Router();
 const authenticate = require('../authenticate')
+const cors = require('./cors')
 
 usersRouter.use(bodyParser.json())
 /* GET users listing. */
-usersRouter.get('/', authenticate.verifyUser, authenticate.verifyAdmin,(req, res, next) => {
+usersRouter.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     User.find({})
         .then(leader => {
             res.statusCode = 200
@@ -18,7 +19,7 @@ usersRouter.get('/', authenticate.verifyUser, authenticate.verifyAdmin,(req, res
         .catch(err => next(err))
 })
 
-usersRouter.post('/signup', (req, res, next) => {
+usersRouter.post('/signup', cors.corsWithOptions, (req, res, next) => {
     User.register(new User({ username: req.body.username }),
         req.body.password,
         (err, user) => {
@@ -50,14 +51,14 @@ usersRouter.post('/signup', (req, res, next) => {
     )
 })
 
-usersRouter.post('/login', passport.authenticate('local'), (req, res) => {
+usersRouter.post('/login', cors.corsWithOptions, passport.authenticate('local'), (req, res) => {
     const token = authenticate.getToken({ _id: req.user._id })
     res.statusCode = 200
     res.setHeader('Content-Type', 'application/json')
     res.json({ success: true, token, status: 'Login Successful!' })
 })
 
-usersRouter.get('/logout', (req, res, next) => {
+usersRouter.get('/logout', cors.corsWithOptions, (req, res, next) => {
     if (req.session) {
         req.session.destroy()
         res.clearCookie('session-id')
