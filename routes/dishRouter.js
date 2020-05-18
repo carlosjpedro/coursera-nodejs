@@ -40,11 +40,11 @@ dishRouter
                 err => next(err))
             .catch(err => next(err))
     })
-    .put(authenticate.verifyUser, (req, res, next) => {
+    .put(authenticate.verifyUser,authenticate.verifyAdmin, (req, res, next) => {
         res.statusCode = 403
         res.end('PUT operation not supported on /dishes')
     })
-    .delete(authenticate.verifyUser, (req, res, next) => {
+    .delete(authenticate.verifyUser, authenticate.verifyAdmin,(req, res, next) => {
         Dishes.remove({})
             .then(response => {
                 res.statusCode = 200
@@ -69,10 +69,10 @@ dishRouter
                 err => next(err))
             .catch(err => next(err))
     })
-    .post(authenticate.verifyUser, (req, res, next) => {
+    .post(authenticate.verifyUser,authenticate.verifyAdmin, (req, res, next) => {
         res.end('POST operation not supported on /dishes/' + req.params.dishId)
     })
-    .put(authenticate.verifyUser, (req, res, next) => {
+    .put(authenticate.verifyUser, authenticate.verifyAdmin,(req, res, next) => {
         Dishes.findByIdAndUpdate(req.params.dishId,
             { $set: req.body }, { new: true })
             .then(dish => {
@@ -133,7 +133,7 @@ dishRouter
                     }, err => next(err)))
             } else {
                 const err = new Error('Dish ' + req.params.dishId + ' not found')
-                err.status = 404
+                err.status = 40
                 return next(err)
             }
         }, err => next(err))
@@ -199,6 +199,13 @@ dishRouter
             .then(dish => {
                 if (dish != null && dish.comments.id(req.params.commentId) != null) {
                     let comment = dish.comments.id(req.params.commentId);
+
+                    if(!comment.author.equals(req.user._id))
+                    {
+                        const err = new Error('Can only edit your comments')
+                        err.status = 403
+                        return next(err)
+                    }
                     if (req.body.rating) {
                         comment.rating = req.body.rating
                     }
@@ -231,6 +238,15 @@ dishRouter
     .delete(authenticate.verifyUser, (req, res, next) => {
         Dishes.findById(req.params.dishId).then(dish => {
             if (dish != null && dish.comments.id(req.params.commentId) != null) {
+
+                let comment =dish.comments.id(req.params.commentId) 
+                if(!comment.author.equals(req.user._id))
+                {
+                    const err = new Error('Can only delete your comments')
+                    err.status = 403
+                    return next(err)
+                }
+
                 dish.comments.id(req.params.commentId).remove()
                 dish.save().then(dish => {
                     Dishes.findById(dish._id)
