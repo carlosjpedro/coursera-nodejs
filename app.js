@@ -36,7 +36,14 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(passport.initialize())
 
+app.all('*', (req, res, next) =>{
 
+    if(req.secure){
+        return next()
+    }
+    
+    res.redirect(307, 'https://' + req.hostname + ':' + app.get('secPort') + req.url)
+})
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use(express.static(path.join(__dirname, 'public')));
